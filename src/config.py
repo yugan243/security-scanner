@@ -7,7 +7,7 @@ class Settings(BaseSettings):
     VERSION: str = "0.1.0"
     
     # --- The Brain Selector ---
-    LLM_PROVIDER: Literal["openai", "ollama", "google"] = "ollama"
+    LLM_PROVIDER: Literal["openai", "ollama", "google", "groq"] = "ollama"
 
     # --- Provider Specifics ---
 
@@ -23,6 +23,10 @@ class Settings(BaseSettings):
     # 3. OpenAI (Paid)
     OPENAI_API_KEY: str | None = None
     OPENAI_MODEL: str = "gpt-4o"
+    
+    # 4. Groq (free)
+    GROQ_API_KEY: str | None = None
+    GROQ_MODEL: str = "llama-3.3-70b-versatile"
 
     # --- Scanner Settings ---
     MAX_CONCURRENCY: int = 5
