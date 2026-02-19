@@ -42,4 +42,5 @@ class ScanReport(BaseModel):
     total_findings: int
     critical_count: int
     high_count: int
+    executive_summary: str = Field(default="No summary generated.")
     findings: List[Vulnerability]
