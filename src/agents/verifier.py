@@ -1,5 +1,5 @@
 import logging
-from langchain_core.prompts import ChatPromptTemplate
+from pydantic import BaseModel, Field
 from src.core.state import AgentState
 from src.core.llm import get_llm
 from src.core.models import FindingStatus, Severity
@@ -7,82 +7,54 @@ from src.config import settings
 
 logger = logging.getLogger(settings.APP_NAME)
 
+# --- 1. Define strict output schema ---
+class VerificationResult(BaseModel):
+    is_true_positive: bool = Field(..., description="True if real risk, False if safe.")
+    confidence: float = Field(..., description="0.0 to 1.0 confidence score.")
+    reasoning: str = Field(..., description="Why is it safe or unsafe?")
+    fix_suggestion: str = Field(..., description="Code or logic to fix it.")
+
 def verify_findings_node(state: AgentState) -> dict:
-    """
-    Node 2: AI Verification.
-    Filters false positives using the configured LLM.
-    """
     findings = state.get("findings", [])
     verified_list = []
     
-    # If no findings, skip
     if not findings:
         return {"verified_findings": []}
 
     llm = get_llm()
-    logger.info(f"[Verifier] Reviewing {len(findings)} findings with {settings.LLM_PROVIDER}...")
+    # Force JSON Output
+    structured_llm = llm.with_structured_output(VerificationResult)
 
-    # Prompt Engineering: A strict "Judge" persona
-    prompt = ChatPromptTemplate.from_template(
-        """
-        You are a Senior Security Engineer. Review this static analysis finding.
-
-        CONTEXT:
-        - Vulnerability Type: {vuln_type}
-        - Severity: {severity}
-        - File: {file_path}:{line_number}
-
-        CODE SNIPPET:
-        ```
-        {code}
-        ```
-
-        YOUR TASK:
-        1. Analyze if the code is actually vulnerable or if it is a False Positive (e.g., test code, sanitized input).
-        2. If Vulnerable, suggest a brief fix.
-        
-        OUTPUT FORMAT:
-        Start your response with either "TRUE_POSITIVE" or "FALSE_POSITIVE", followed by a separator "||", then your explanation.
-        Example: "FALSE_POSITIVE || Input is sanitized by regex on line 42."
-        """
-    )
-
-    chain = prompt | llm
+    logger.info(f"🧠 [Verifier] Reviewing {len(findings)} findings...")
 
     for finding in findings:
-        # Optimization: Skip Low severity to save tokens
         if finding.severity not in [Severity.CRITICAL, Severity.HIGH]:
             finding.status = FindingStatus.UNVERIFIED
             verified_list.append(finding)
             continue
 
         try:
-            response = chain.invoke({
-                "vuln_type": finding.vuln_type,
-                "severity": finding.severity.value,
-                "file_path": finding.file_path,
-                "line_number": finding.line_number,
-                "code": finding.code_snippet
-            })
-            
-            # Simple parsing of the "TRUE_POSITIVE || Explanation" format
-            content = response.content.strip()
-            if "||" in content:
-                status_str, explanation = content.split("||", 1)
-            else:
-                status_str, explanation = content, "No explanation provided."
+            result = structured_llm.invoke(f"""
+                Analyze this finding.
+                Vuln: {finding.vuln_type}
+                File: {finding.file_path}:{finding.line_number}
+                Code:
+                {finding.code_snippet}
+            """)
 
-            if "TRUE_POSITIVE" in status_str.upper():
+            # Update Fields
+            finding.confidence_score = result.confidence  # <--- CAPTURE SCORE
+            finding.description += f" [Reason: {result.reasoning}]"
+
+            if result.is_true_positive:
                 finding.status = FindingStatus.TRUE_POSITIVE
-                finding.remediation = explanation.strip()
-            elif "FALSE_POSITIVE" in status_str.upper():
-                finding.status = FindingStatus.FALSE_POSITIVE
-                finding.description += f" [AI Dismissed: {explanation.strip()}]"
+                finding.remediation = result.fix_suggestion
             else:
-                finding.status = FindingStatus.NEEDS_REVIEW
-
+                finding.status = FindingStatus.FALSE_POSITIVE
+        
         except Exception as e:
-            logger.error(f"[Verifier] LLM Failed on {finding.id}: {e}")
+            logger.error(f"❌ [Verifier] Failed: {e}")
+            finding.status = FindingStatus.NEEDS_REVIEW
         
         verified_list.append(finding)
 
