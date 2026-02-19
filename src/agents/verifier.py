@@ -15,6 +15,14 @@ class VerificationResult(BaseModel):
     fix_suggestion: str = Field(..., description="Code or logic to fix it.")
 
 def verify_findings_node(state: AgentState) -> dict:
+    """
+    Node 2: Verifier Agent.
+    
+    1. Reviews raw findings from the Scanner.
+    2. Uses Structured Outputs (JSON) to force the LLM to give a confidence score (0.0-1.0).
+    3. Filters out False Positives and suggests fixes for real bugs.
+    """
+    
     findings = state.get("findings", [])
     verified_list = []
     

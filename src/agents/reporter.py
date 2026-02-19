@@ -8,6 +8,14 @@ from src.config import settings
 logger = logging.getLogger(settings.APP_NAME)
 
 def report_generation_node(state: AgentState) -> dict:
+    """
+    Node 3: Reporting Agent.
+    
+    1. Aggregates final statistics (Critical/High counts).
+    2. ASKS the LLM (acting as a CISO) to write an Executive Summary.
+    3. Generates the final Report Object for the user.
+    """
+    
     verified = state.get("verified_findings", [])
     repo_path = state.get("repo_path", "unknown")
     
