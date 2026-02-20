@@ -1,3 +1,4 @@
+import os
 import typer
 import logging
 from rich.console import Console
@@ -7,7 +8,8 @@ from rich.markdown import Markdown
 
 from src.agents.workflow import create_workflow
 from src.config import settings
-from src.tools.git import clone_repo  # <-- NEW IMPORT
+from src.tools.git import clone_repo  
+from src.core.models import FindingStatus
 
 # Setup App
 app = typer.Typer(help="AI-Powered Security Scanner")
@@ -37,26 +39,45 @@ def run_workflow(repo_target: str, workflow):
         style="blue"
     ))
 
+    # --- 1. FILTERING (The Bouncer) ---
+    actionable_findings = [f for f in report_obj.findings if f.status in [FindingStatus.TRUE_POSITIVE, FindingStatus.NEEDS_REVIEW]]
+    false_positives_blocked = len(report_obj.findings) - len(actionable_findings)
+
     # Print Findings Table
-    table = Table(title="Confirmed Vulnerabilities")
+    table = Table(title="Actionable Vulnerabilities")
     table.add_column("Sev", style="red")
     table.add_column("Type", style="cyan")
     table.add_column("Location")
     table.add_column("Conf", justify="right")
     table.add_column("Status")
 
-    for f in report_obj.findings:
+    # --- 2. CLEAN UP THE UI ---
+    for f in actionable_findings:
         conf_color = "green" if f.confidence_score > 0.8 else "yellow"
+        
+        # Strip the long temporary path so it fits on screen
+        try:
+            clean_path = os.path.relpath(f.file_path, repo_target)
+        except ValueError:
+            clean_path = f.file_path
+            
+        display_location = f"{clean_path}:{f.line_number}"
+
         table.add_row(
             f.severity.value,
             f.vuln_type,
-            f"{f.file_path}:{f.line_number}",
+            display_location,
             f"[{conf_color}]{f.confidence_score:.2f}[/{conf_color}]",
             f.status.value
         )
 
-    console.print(table)
-    console.print(f"\nScan Complete. Total Issues: {report_obj.total_findings}")
+    if actionable_findings:
+        console.print(table)
+    else:
+        console.print("\n[bold green]No actionable vulnerabilities found! All warnings were filtered by AI.[/bold green]")
+
+    # --- 3. THE SUPERVISOR METRIC ---
+    console.print(f"\nScan Complete. Actionable Threats: [bold red]{len(actionable_findings)}[/bold red] | False Positives Blocked: [bold green]{false_positives_blocked}[/bold green]")
 
 
 @app.command()

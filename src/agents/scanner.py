@@ -24,13 +24,13 @@ def scan_repo_node(state: AgentState) -> dict:
         
         count = len(raw_results)
         if count == 0:
-            logger.warning("⚠️ [Scanner Agent] Semgrep found 0 issues. (Is the path correct?)")
+            logger.warning("[Scanner Agent] Semgrep found 0 issues. (Is the path correct?)")
         else:
-            logger.info(f"✅ [Scanner Agent] Semgrep found {count} potential issues.")
+            logger.info(f"[Scanner Agent] Semgrep found {count} potential issues.")
         
         # Return ONLY the key we want to update in the state
         return {"findings": raw_results}
         
     except Exception as e:
-        logger.error(f"❌ [Scanner Agent] Scan failed: {e}")
+        logger.error(f"[Scanner Agent] Scan failed: {e}")
         return {"findings": []}
