@@ -33,7 +33,7 @@ def verify_findings_node(state: AgentState) -> dict:
     # Force JSON Output
     structured_llm = llm.with_structured_output(VerificationResult)
 
-    logger.info(f"🧠 [Verifier] Reviewing {len(findings)} findings...")
+    logger.info(f" [Verifier] Reviewing {len(findings)} findings...")
 
     for finding in findings:
         if finding.severity not in [Severity.CRITICAL, Severity.HIGH]:
@@ -61,7 +61,7 @@ def verify_findings_node(state: AgentState) -> dict:
                 finding.status = FindingStatus.FALSE_POSITIVE
         
         except Exception as e:
-            logger.error(f"❌ [Verifier] Failed: {e}")
+            logger.error(f"[Verifier] Failed: {e}")
             finding.status = FindingStatus.NEEDS_REVIEW
         
         verified_list.append(finding)

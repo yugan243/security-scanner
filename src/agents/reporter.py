@@ -4,6 +4,7 @@ from src.core.state import AgentState
 from src.core.models import FindingStatus, Severity, ScanReport
 from src.core.llm import get_llm
 from src.config import settings
+from collections import Counter
 
 logger = logging.getLogger(settings.APP_NAME)
 
@@ -23,19 +24,34 @@ def report_generation_node(state: AgentState) -> dict:
     criticals = [f for f in true_positives if f.severity == Severity.CRITICAL]
     highs = [f for f in true_positives if f.severity == Severity.HIGH]
     
-    # --- NEW: Generate AI Summary ---
+    # --- Generate AI Summary ---
     summary_text = "No critical issues found."
     if true_positives:
         try:
             llm = get_llm()
-            vuln_list = "\n".join([f"- {f.vuln_type} in {f.file_path}" for f in true_positives[:5]])
             
+            # 1. Count how many times each vulnerability type appears
+            vuln_counts = Counter([f.vuln_type for f in true_positives])
+            
+            # 2. Format the aggregated list (e.g., "- SQL Injection: 12 instance(s)")
+            vuln_list = "\n".join([f"- {v_type}: {count} instance(s)" for v_type, count in vuln_counts.items()])
+            
+            logger.info(f"[Reporter] Sending aggregated metrics to LLM:\n{vuln_list}")
+            
+            # 3. Ask the LLM to summarize based on the metrics
             response = llm.invoke(f"""
-                Write a 3-sentence executive security summary for these findings:
+                You are a Chief Information Security Officer (CISO).
+                Write a 3-sentence executive security summary based on these vulnerability metrics:
+                
                 {vuln_list}
+                
+                Focus on the overarching business risk and attack surface, not individual files.
+                Tone: Professional, direct, and actionable.
             """)
-            summary_text = response.content
-        except Exception:
+            summary_text = response.content.strip()
+            
+        except Exception as e:
+            logger.error(f"[Reporter] AI Summary generation failed: {e}")
             summary_text = "AI Summary generation failed."
     # --------------------------------
 
@@ -49,5 +65,5 @@ def report_generation_node(state: AgentState) -> dict:
         findings=verified
     )
     
-    logger.info(f"📊 [Reporter] Summary: {summary_text}")
+    logger.info(f"[Reporter] Summary: {summary_text}")
     return {"scan_summary": {"report_object": report}}
