@@ -30,6 +30,8 @@ class Settings(BaseSettings):
 
     # --- Scanner Settings ---
     MAX_CONCURRENCY: int = 5
+
+    hf_token: str
     
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 
