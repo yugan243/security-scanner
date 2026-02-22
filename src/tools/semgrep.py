@@ -1,4 +1,5 @@
 import subprocess
+import os
 import json
 import logging
 from typing import List
@@ -68,12 +69,12 @@ class SemgrepScanner:
         # 2. Parse the Output
         try:
             data = json.loads(result.stdout)
-            return self._parse_findings(data)
+            return self._parse_findings(data, repo_path)
         except json.JSONDecodeError:
             logger.error("Failed to parse Semgrep JSON output.")
             return []
 
-    def _parse_findings(self, raw_data: dict) -> List[Vulnerability]:
+    def _parse_findings(self, raw_data: dict, repo_path: str) -> List[Vulnerability]:
         """
         Converts raw Semgrep JSON into our clean Vulnerability objects.
         """
@@ -91,11 +92,22 @@ class SemgrepScanner:
             # Default to MEDIUM if unknown
             semgrep_severity = item.get("extra", {}).get("severity", "WARNING")
             mapped_severity = severity_map.get(semgrep_severity, Severity.MEDIUM)
+            
+            # --- Sanitize the path ---
+            raw_path = item.get("path", "unknown")
+            if raw_path != "unknown":
+                try:
+                    clean_path = os.path.relpath(raw_path, repo_path)
+                    clean_path = clean_path.replace("\\", "/") # Standardize slashes
+                except ValueError:
+                    clean_path = raw_path
+            else:
+                clean_path = "unknown"
 
             # Create our specific object
             vuln = Vulnerability(
                 id=item.get("check_id", "unknown"),
-                file_path=item.get("path", "unknown"),
+                file_path=clean_path,
                 line_number=item.get("start", {}).get("line", 0),
                 severity=mapped_severity,
                 vuln_type=item.get("check_id", "Generic Vulnerability"),

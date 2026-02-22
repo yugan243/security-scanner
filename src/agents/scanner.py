@@ -1,4 +1,5 @@
 import logging
+import os
 from src.core.state import AgentState
 from src.tools.semgrep import SemgrepScanner
 from src.config import settings
@@ -34,3 +35,6 @@ def scan_repo_node(state: AgentState) -> dict:
     except Exception as e:
         logger.error(f"[Scanner Agent] Scan failed: {e}")
         return {"findings": []}
+    
+    
+    
