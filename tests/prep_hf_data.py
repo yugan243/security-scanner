@@ -12,7 +12,7 @@ logging.basicConfig(level=logging.INFO, format="%(message)s")
 
 MOCK_REPO_DIR = os.path.join(os.path.dirname(__file__), "mock_repo")
 OUTPUT_JSON = os.path.join(os.path.dirname(__file__), "benchmark_data.json")
-SAMPLE_SIZE = 100
+SAMPLE_SIZE = 50
 
 def setup_directories():
     if not os.path.exists(MOCK_REPO_DIR):
