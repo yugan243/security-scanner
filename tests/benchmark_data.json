@@ -1,0 +1,82 @@
+[
+    {
+        "id": "TR_0",
+        "file_path": "vuln_file_0.py",
+        "line_number": 3,
+        "vuln_type": "Improper Neutralization of Special Elements used in an SQL Command (\u201cSQL Injection\u201d)",
+        "code_snippet": "```java\nimport java.sql.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        String url = \"jdbc:mysql://localhost:3306/myDatabase\";\n        String username = \"root\";\n        String password = \"\"; // This is a bad practice\n\n   \n...",
+        "expected_status": "TRUE_POSITIVE"
+    },
+    {
+        "id": "FA_1",
+        "file_path": "safe_file_1.py",
+        "line_number": 3,
+        "vuln_type": "Safe Code",
+        "code_snippet": "```go\npackage main\n\nimport \"fmt\"\n\nfunc main() {\n    s := make([]int, 0, 5) // Initialize the slice with zero length\n    fmt.Println(\"Initial Capacity:\", cap(s))\n\n    s = append(s, []int{1, 2, 3}...)\n    fmt.Println(\"After Append:\", s)\n\n    for i := 0\n...",
+        "expected_status": "FALSE_POSITIVE"
+    },
+    {
+        "id": "FA_2",
+        "file_path": "safe_file_2.py",
+        "line_number": 3,
+        "vuln_type": "Safe Code",
+        "code_snippet": "```java\nimport java.sql.*;\n\npublic class SecureLogin {\n    public static void main(String[] args) {\n        String username = \"testUser\";\n        String password = \"testPassword'; DROP TABLE Users; --\";\n        \n        try {\n            Class.forNam\n...",
+        "expected_status": "FALSE_POSITIVE"
+    },
+    {
+        "id": "TR_3",
+        "file_path": "vuln_file_3.py",
+        "line_number": 3,
+        "vuln_type": "Out-of-bounds Write",
+        "code_snippet": "```go\npackage main\n\nimport (\n\t\"fmt\"\n\t\"os\"\n)\n\nfunc main() {\n\tstr := make([]byte, 1024)\n\tfile, err := os.Open(\"large_file.txt\")\n\tif err != nil {\n\t\tfmt.Println(err)Bs\n\t}\n\tfor {\n\t\tn, err := file.Read(str)\n\t\tif err != nil {\n\t\t\tbreak\n\t\t}\n\t\tfmt.Println(stri\n...",
+        "expected_status": "TRUE_POSITIVE"
+    },
+    {
+        "id": "TR_4",
+        "file_path": "vuln_file_4.py",
+        "line_number": 3,
+        "vuln_type": "Improper Neutralization of Input During Web Page Generation (\u201cCross-site Scripting\u201d)",
+        "code_snippet": "```ruby\ndef generate_query(user_input)\n  \"SELECT * FROM users WHERE username='#{user_input}'\"\nend\n\ndef login(username, password)\n  query = generate_query(username)\n  # Execute the query\n  # Assume this function executes the SQL query safely\nend\n\nlogi\n...",
+        "expected_status": "TRUE_POSITIVE"
+    },
+    {
+        "id": "FA_5",
+        "file_path": "safe_file_5.py",
+        "line_number": 3,
+        "vuln_type": "Safe Code",
+        "code_snippet": "```swift\nimport Foundation\n\nfunc getUserName(userId: Int) -> String? {\n    // Assume this function fetches user name from a database\n    // For simplicity, let's return nil for even numbers as if the user doesn't exist\n    return userId % 2 == 1 ? \"U\n...",
+        "expected_status": "FALSE_POSITIVE"
+    },
+    {
+        "id": "TR_6",
+        "file_path": "vuln_file_6.py",
+        "line_number": 3,
+        "vuln_type": "Improper Control of Generation of Code (\u201cCode Injection\u201d)",
+        "code_snippet": "```go\npackage main\n\nimport (\n\t\"fmt\"\n\t\"os\"\n)\n\nfunc main() {\n\tfile, err := os.Open(\"non_existent_file.txt\")\n\tif err != nil {\n\t\tfmt.Println(err)ivalidInputError\n\t}\n\tdefer file.Close()\n}\n```\n...",
+        "expected_status": "TRUE_POSITIVE"
+    },
+    {
+        "id": "FA_7",
+        "file_path": "safe_file_7.py",
+        "line_number": 3,
+        "vuln_type": "Safe Code",
+        "code_snippet": "```go\npackage main\n\nimport (\n\t\"log\"\n\t\"os/exec\"\n)\n\nfunc runCommand(command string) error {\n\tcmd := exec.Command(\"/bin/sh\", \"-c\", command)\n\t_, err := cmd.Output()\n\treturn err\n}\n\nfunc main() {\n\terr := runCommand(\"ls\")\n\tif err != nil {\n\t\tlog.Fatal(\"Error\n...",
+        "expected_status": "FALSE_POSITIVE"
+    },
+    {
+        "id": "TR_8",
+        "file_path": "vuln_file_8.py",
+        "line_number": 3,
+        "vuln_type": "Improper Control of Generation of Code (\u201cCode Injection\u201d)",
+        "code_snippet": "```java\nimport java.util.Random;\n\npublic class VulnerableClass {\n    private static final long SEED = 1234567890L;\n\n    public int getRandomNumber() {\n        Random random = new Random(SEED);\n        return random.nextInt();\n    }\n}\n```\n...",
+        "expected_status": "TRUE_POSITIVE"
+    },
+    {
+        "id": "FA_9",
+        "file_path": "safe_file_9.py",
+        "line_number": 3,
+        "vuln_type": "Safe Code",
+        "code_snippet": "```swift\nimport Foundation\n\nclass SecureClass {\n    var buffer: [UInt8] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]\n    \n    func addData(_ data: [UInt8]) {\n        let count = min(data.count, buffer.count)\n        for i in 0..<count {\n            buffer[i] = d\n...",
+        "expected_status": "FALSE_POSITIVE"
+    }
+]
