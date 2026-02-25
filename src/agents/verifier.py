@@ -1,11 +1,10 @@
 import logging
-from typing import Literal, Optional
+from typing import List
 from pydantic import BaseModel, Field
 from src.core.state import AgentState
 from src.core.llm import get_llm
 from src.core.models import FindingStatus, Severity
 from src.config import settings
-from src.tools.file_reader import read_code_segment
 from langchain_core.messages import SystemMessage, HumanMessage
 
 logger = logging.getLogger(settings.APP_NAME)
@@ -52,31 +51,39 @@ SECURITY_EXPERT_SYSTEM_PROMPT = """You are a Senior Application Security Enginee
 4. Poor error handling (swallowed exceptions, info leakage) IS a security concern.
 """
 
-# --- 1. Define strict output schema ---
-class VerificationResult(BaseModel):
-    """
-    The LLM can either make a decision OR ask to read more code.
-    """
-    
-    action: Literal["DECIDE", "READ_MORE_CODE"] = Field(..., description="Choose DECIDE if you have enough info. Choose READ_MORE_CODE if you need to see surrounding lines to check for sanitization.")
-    
-    # Fields for when action == "DECIDE"
+# ================================================================================
+# BATCH VERIFICATION: Send multiple findings per LLM call to save tokens & time
+# System prompt (~850 tokens) is sent ONCE per batch instead of once per finding
+# ================================================================================
+VERIFICATION_BATCH_SIZE = 5
+
+# ================================================================================
+# CONFIDENCE THRESHOLD: Override uncertain FALSE_POSITIVE verdicts
+# If the LLM says "safe" but isn't confident enough, treat it as TRUE_POSITIVE
+# This catches missed threats (False Negatives) at zero extra token cost
+# ================================================================================
+CONFIDENCE_THRESHOLD = 0.7  # FP verdicts below this confidence get overridden
+
+# --- Structured Output Schemas ---
+class FindingVerdict(BaseModel):
+    """Verdict for a single finding within a batch."""
+    finding_id: str = Field(..., description="The ID of the finding being evaluated")
     is_true_positive: bool = Field(..., description="True if real risk, False if safe.")
     confidence: float = Field(..., description="0.0 to 1.0 confidence score.")
-    reasoning: str = Field(..., description="Why is it safe or unsafe?")
-    fix_suggestion: str = Field(..., description="Code or logic to fix it.")
-    
-    # Fields for when action == "READ_MORE_CODE"
-    start_line: Optional[int] = Field(None, description="Line number to start reading from.")
-    end_line: Optional[int] = Field(None, description="Line number to stop reading.")
+    reasoning: str = Field(..., description="Brief explanation: why is it safe or unsafe?")
+    fix_suggestion: str = Field(..., description="How to fix it, or 'N/A' if safe.")
+
+class BatchVerificationResult(BaseModel):
+    """Batch verification results for multiple findings."""
+    verdicts: List[FindingVerdict] = Field(..., description="One verdict per finding, matching the IDs from the input.")
 
 def verify_findings_node(state: AgentState) -> dict:
     """
-    Node 2: Verifier Agent.
+    Node 2: Verifier Agent (Batch Mode).
     
-    1. Reviews raw findings from the Scanner.
-    2. Uses Structured Outputs (JSON) to force the LLM to give a confidence score (0.0-1.0).
-    3. Filters out False Positives and suggests fixes for real bugs.
+    1. Groups raw findings into batches of VERIFICATION_BATCH_SIZE.
+    2. Sends each batch as a SINGLE LLM call (amortizing the system prompt cost).
+    3. Parses batch results back to individual findings.
     """
     
     findings = state.get("findings", [])
@@ -86,85 +93,88 @@ def verify_findings_node(state: AgentState) -> dict:
     if not findings:
         return {"verified_findings": []}
 
-    llm = get_llm()
-    # Force JSON Output
-    structured_llm = llm.with_structured_output(VerificationResult)
-
-    logger.info(f"[Verifier] Reviewing {len(findings)} findings...")
-
+    # Separate findings by severity — only verify CRITICAL/HIGH/MEDIUM
+    to_verify = []
     for finding in findings:
         if finding.severity not in [Severity.CRITICAL, Severity.HIGH, Severity.MEDIUM]:
             finding.status = FindingStatus.UNVERIFIED
             verified_list.append(finding)
-            continue
+        else:
+            to_verify.append(finding)
+    
+    if not to_verify:
+        return {"verified_findings": verified_list}
+
+    llm = get_llm()
+    structured_llm = llm.with_structured_output(BatchVerificationResult)
+
+    total_batches = (len(to_verify) + VERIFICATION_BATCH_SIZE - 1) // VERIFICATION_BATCH_SIZE
+    logger.info(f"[Verifier] Reviewing {len(to_verify)} findings in {total_batches} batch(es) of {VERIFICATION_BATCH_SIZE}...")
+
+    for batch_idx in range(0, len(to_verify), VERIFICATION_BATCH_SIZE):
+        batch = to_verify[batch_idx:batch_idx + VERIFICATION_BATCH_SIZE]
+        batch_num = (batch_idx // VERIFICATION_BATCH_SIZE) + 1
+        
+        # Format all findings in this batch into a single prompt
+        findings_text = ""
+        for idx, f in enumerate(batch, 1):
+            findings_text += f"""
+--- Finding {idx} (ID: {f.id}) ---
+Type: {f.vuln_type}
+File: {f.file_path}:{f.line_number}
+Code:
+```
+{f.code_snippet}
+```
+"""
+        
+        batch_prompt = f"""Analyze the following {len(batch)} static analysis finding(s). For EACH finding, apply the 4-step analysis framework and provide a verdict.
+
+{findings_text}
+You MUST provide exactly {len(batch)} verdict(s), one for each finding ID listed above."""
 
         try:
-            # First Pass: Enhanced prompt with CoT framework + Few-Shot context
-            finding_prompt = f"""Analyze the following static analysis finding using your security analysis framework.
-
-**Reported Vulnerability Type:** {finding.vuln_type}
-**File:** {finding.file_path}:{finding.line_number}
-**Code Snippet:**
-```
-{finding.code_snippet}
-```
-
-Follow your 4-step analysis framework:
-1. Identify the data source and data sink (the taint path)
-2. Check for any sanitization, validation, or defensive coding
-3. Map to the relevant CWE vulnerability class
-4. Provide your verdict with confidence score, detailed reasoning, and a specific fix suggestion
-
-If you need to see more surrounding code to check for sanitization or context, choose READ_MORE_CODE and specify the line range. Otherwise, choose DECIDE."""
+            logger.info(f"[Verifier] Processing batch {batch_num}/{total_batches} ({len(batch)} findings)...")
             messages = [
                 SystemMessage(content=SECURITY_EXPERT_SYSTEM_PROMPT),
-                HumanMessage(content=finding_prompt)
+                HumanMessage(content=batch_prompt)
             ]
             result = structured_llm.invoke(messages)
             
-            # AGENT LOOP: Did the LLM decide to use its "Hand"?
-            if result.action == "READ_MORE_CODE" and result.start_line:
-                logger.info(f"[Verifier] LLM requested more context for {finding.file_path} (lines {result.start_line}-{result.end_line})")
-                
-                # Fetch the surrounding code
-                extra_context = read_code_segment(
-                    repo_root=repo_path, 
-                    file_path=finding.file_path, 
-                    start_line=result.start_line, 
-                    end_line=result.end_line
-                )
-                
-                # Second Pass: Feed the new context and force a decision
-                logger.info(f"[Verifier] Re-evaluating with expanded context...")
-                followup_prompt = f"""{finding_prompt}
-
---- ADDITIONAL CONTEXT (You requested this) ---
-{extra_context}
----
-
-You now have the expanded context. You MUST choose DECIDE and provide your final verdict following the 4-step framework."""
-                messages = [
-                    SystemMessage(content=SECURITY_EXPERT_SYSTEM_PROMPT),
-                    HumanMessage(content=followup_prompt)
-                ]
-                result = structured_llm.invoke(messages)
-                
-            # Final Record Keeping
-            if result.action == "DECIDE":
-                finding.confidence_score = result.confidence if result.confidence else 0.0
-                finding.description += f" [AI Reason: {result.reasoning}]"
-
-                if result.is_true_positive:
-                    finding.status = FindingStatus.TRUE_POSITIVE
-                    finding.remediation = result.fix_suggestion
+            # Map results back to findings by ID
+            verdict_map = {v.finding_id: v for v in result.verdicts}
+            
+            for finding in batch:
+                verdict = verdict_map.get(finding.id)
+                if verdict:
+                    finding.confidence_score = verdict.confidence if verdict.confidence else 0.0
+                    finding.description += f" [AI Reason: {verdict.reasoning}]"
+                    if verdict.is_true_positive:
+                        finding.status = FindingStatus.TRUE_POSITIVE
+                        finding.remediation = verdict.fix_suggestion
+                    else:
+                        # CONFIDENCE THRESHOLD: Override uncertain "safe" verdicts
+                        # If the LLM says FALSE_POSITIVE but isn't confident, flag it as TRUE_POSITIVE
+                        if finding.confidence_score < CONFIDENCE_THRESHOLD:
+                            logger.warning(
+                                f"[Verifier] Confidence override: {finding.id} marked FP with confidence "
+                                f"{finding.confidence_score:.2f} < {CONFIDENCE_THRESHOLD} → overriding to TP"
+                            )
+                            finding.status = FindingStatus.TRUE_POSITIVE
+                            finding.remediation = verdict.fix_suggestion or "Low-confidence dismissal overridden. Manual review recommended."
+                        else:
+                            finding.status = FindingStatus.FALSE_POSITIVE
                 else:
-                    finding.status = FindingStatus.FALSE_POSITIVE
-            else:
-                 finding.status = FindingStatus.NEEDS_REVIEW
+                    # LLM didn't return a verdict for this finding
+                    logger.warning(f"[Verifier] No verdict returned for {finding.id}")
+                    finding.status = FindingStatus.NEEDS_REVIEW
+                
+                verified_list.append(finding)
+                
         except Exception as e:
-            logger.error(f"[Verifier] Failed on {finding.id}: {e}")
-            finding.status = FindingStatus.NEEDS_REVIEW
-        
-        verified_list.append(finding)
+            logger.error(f"[Verifier] Batch {batch_num} failed: {e}")
+            for finding in batch:
+                finding.status = FindingStatus.NEEDS_REVIEW
+                verified_list.append(finding)
 
     return {"verified_findings": verified_list}
