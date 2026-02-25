@@ -43,6 +43,9 @@ jobs:
       - name: Install dependencies
         run: poetry install
 
+      - name: Install Semgrep
+        run: pip install semgrep
+
       - name: Verify imports work
         run: poetry run python -c "from vigil.config import settings; print(f'Vigil {settings.VERSION} loaded successfully')"
 
