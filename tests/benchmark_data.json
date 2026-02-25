@@ -392,11 +392,411 @@
         "expected_status": "FALSE_POSITIVE"
     },
     {
-        "id": "TR_49",
-        "file_path": "vuln_file_49.py",
+        "id": "FA_49",
+        "file_path": "safe_file_49.py",
+        "line_number": 3,
+        "vuln_type": "Safe Code",
+        "code_snippet": "```python\nimport subprocess\nimport shlex\n\ndef execute_command(user_input):\n    # Split the user's input into a list of arguments\n    args = shlex.split('ls ' + user_input)\n    \n    # Use subprocess.run instead of subprocess.check_output\n    # This wi\n...",
+        "expected_status": "FALSE_POSITIVE"
+    },
+    {
+        "id": "TR_50",
+        "file_path": "vuln_file_50.py",
         "line_number": 3,
         "vuln_type": "Improper Input Validation",
         "code_snippet": "```swift\nimport Foundation\n\nfunc processUserInput(userInput: String) -> String {\n    let command = \"echo \\(userInput)\"\n    let task = Process()\n    task.launchPath = \"/bin/sh\"\n    task.arguments = [\"-c\", command]\n    \n    let outputPipe = Pipe()\n    \n...",
         "expected_status": "TRUE_POSITIVE"
+    },
+    {
+        "id": "TR_51",
+        "file_path": "vuln_file_51.py",
+        "line_number": 3,
+        "vuln_type": "Deserialization of Untrusted Data",
+        "code_snippet": "```java\nimport java.io.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        try {\n            ByteArrayOutputStream byteOut = new ByteArrayOutputStream();\n            ObjectOutputStream out = new ObjectOutputStream(byteOut);\n \n...",
+        "expected_status": "TRUE_POSITIVE"
+    },
+    {
+        "id": "TR_52",
+        "file_path": "vuln_file_52.py",
+        "line_number": 3,
+        "vuln_type": "Improper Neutralization of Special Elements used in an SQL Command (\u201cSQL Injection\u201d)",
+        "code_snippet": "```java\nimport java.sql.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        String username = \"test\";\n        String password = \"test\";\n        String query = \"SELECT * FROM users WHERE username='\" + username + \"' AND passwor\n...",
+        "expected_status": "TRUE_POSITIVE"
+    },
+    {
+        "id": "TR_53",
+        "file_path": "vuln_file_53.py",
+        "line_number": 3,
+        "vuln_type": "Deserialization of Untrusted Data",
+        "code_snippet": "```python\nimport pickle\nimport os\n\nclass Evil(object):\n    def __reduce__(self):\n        return (os.system, ('echo \"You have been hacked!\"',))\n\ndata = pickle.dumps(Evil())\npickle.loads(data)\n```\n...",
+        "expected_status": "TRUE_POSITIVE"
+    },
+    {
+        "id": "TR_54",
+        "file_path": "vuln_file_54.py",
+        "line_number": 3,
+        "vuln_type": "NULL Pointer Dereference",
+        "code_snippet": "```swift\nimport Foundation\n\nclass User {\n    var name: String?\n    \n    func greet() {\n        print(\"Hello, \\(name!)\")\n    }\n}\n\nlet user = User()\nuser.greet()\n```\n...",
+        "expected_status": "TRUE_POSITIVE"
+    },
+    {
+        "id": "TR_55",
+        "file_path": "vuln_file_55.py",
+        "line_number": 3,
+        "vuln_type": "Out-of-bounds Write",
+        "code_snippet": "```java\nimport java.util.concurrent.atomic.AtomicInteger;\n\npublic class Main {\n    private static final AtomicInteger nextId = new AtomicInteger(0);\n\n    // Incorrect use of ThreadLocal variable\n    private static final ThreadLocal<Integer> threadId \n...",
+        "expected_status": "TRUE_POSITIVE"
+    },
+    {
+        "id": "TR_56",
+        "file_path": "vuln_file_56.py",
+        "line_number": 3,
+        "vuln_type": "Out-of-bounds Write",
+        "code_snippet": "```go\npackage main\n\nimport (\n\t\"fmt\"\n\t\"strings\"\n)\n\nfunc main() {\n\tvar strs []string\n\tfor i := 0; i < 10000000; i++ {\n\t\tstrs = append(strs, \"a\")\n\t}\n\tfmt.Println(strings.Join(strs, \"\"))\n}\n```\n...",
+        "expected_status": "TRUE_POSITIVE"
+    },
+    {
+        "id": "TR_57",
+        "file_path": "vuln_file_57.py",
+        "line_number": 3,
+        "vuln_type": "Improper Control of Generation of Code (\u201cCode Injection\u201d)",
+        "code_snippet": "```ruby\nclass User\n  def initialize(name)\n    @name = name\n  end\n\n  def method_missing(method_name, *args, &block)\n    return super unless method_name.to_s.start_with?('get_')\n    instance_variable_get(\"@#{method_name[4..-1]}\")\n  end\nend\n\nuser = User\n...",
+        "expected_status": "TRUE_POSITIVE"
+    },
+    {
+        "id": "FA_58",
+        "file_path": "safe_file_58.py",
+        "line_number": 3,
+        "vuln_type": "Safe Code",
+        "code_snippet": "```kotlin\nimport java.util.*\n\nsealed class Animal(val name: String)\ndata class Dog(val breed: String): Animal(breed)\ndata class Cat(val color: String): Animal(color)\n\nfun main() {\n    val animalList: List<Animal> = listOf(Dog(\"Bulldog\"), Cat(\"Black\")\n...",
+        "expected_status": "FALSE_POSITIVE"
+    },
+    {
+        "id": "TR_59",
+        "file_path": "vuln_file_59.py",
+        "line_number": 3,
+        "vuln_type": "Improper Control of Generation of Code (\u201cCode Injection\u201d)",
+        "code_snippet": "```python\nimport os\ndef execute_user_command():\n    user_input = input(\"Enter your command: \")\n    os.system(user_input)\n    \nexecute_user_command()\n```\n...",
+        "expected_status": "TRUE_POSITIVE"
+    },
+    {
+        "id": "FA_60",
+        "file_path": "safe_file_60.py",
+        "line_number": 3,
+        "vuln_type": "Safe Code",
+        "code_snippet": "```python\nimport pickle\nimport subprocess\n\nclass RunBinSh(object):\n    def __reduce__(self):\n        return (subprocess.Popen, (['/bin/sh'],))\n\ndef serialize_exploit():\n    malicious_data = pickle.dumps(RunBinSh())\n    with open('payload.dat', 'wb') \n...",
+        "expected_status": "FALSE_POSITIVE"
+    },
+    {
+        "id": "TR_61",
+        "file_path": "vuln_file_61.py",
+        "line_number": 3,
+        "vuln_type": "Improper Input Validation",
+        "code_snippet": "```swift\nimport Foundation\nimport UIKit\n\nclass ViewController: UIViewController {\n  @IBOutlet weak var inputField: UITextField\n  @IBAction func submitButtonPressed(_ sender: Any) {\n    let userInput = inputField.text\n    let urlString = \"https://exam\n...",
+        "expected_status": "TRUE_POSITIVE"
+    },
+    {
+        "id": "TR_62",
+        "file_path": "vuln_file_62.py",
+        "line_number": 3,
+        "vuln_type": "Improper Control of Generation of Code (\u201cCode Injection\u201d)",
+        "code_snippet": "```python\nimport pickle\nimport os\n\nclass RunBinSh(object):\n    def __reduce__(self):\n        return (os.system, ('/bin/sh',))\n\ndef serialize_exploit():\n    malicious = pickle.dumps(RunBinSh())\n    return malicious\n\ndef deserialize_exploit(serialized_\n...",
+        "expected_status": "TRUE_POSITIVE"
+    },
+    {
+        "id": "TR_63",
+        "file_path": "vuln_file_63.py",
+        "line_number": 3,
+        "vuln_type": "Improper Control of Generation of Code (\u201cCode Injection\u201d)",
+        "code_snippet": "```ruby\ndef vulnerable_method(user_input)\n  eval(user_input)\nend\n\nvulnerable_method(\"system('rm -rf /')\")\n```\n...",
+        "expected_status": "TRUE_POSITIVE"
+    },
+    {
+        "id": "TR_64",
+        "file_path": "vuln_file_64.py",
+        "line_number": 3,
+        "vuln_type": "Out-of-bounds Write",
+        "code_snippet": "```go\npackage main\n\nimport \"fmt\"\n\nfunc main() {\n    slice := make([]int, 2, 3)\n    slice[0] = 1\n    slice[1] = 2\n    slice = append(slice, 3)\n    fmt.Println(slice)\n}\n```\n...",
+        "expected_status": "TRUE_POSITIVE"
+    },
+    {
+        "id": "TR_65",
+        "file_path": "vuln_file_65.py",
+        "line_number": 3,
+        "vuln_type": "Improper Control of Generation of Code (\u201cCode Injection\u201d)",
+        "code_snippet": "```python\nimport os\n\ndef run_command(user_input):\n    command = \"ls \" + user_input\n    os.system(command)\n\ndef run_eval(user_input):\n    eval(user_input)\n\nif __name__ == \"__main__\":\n    user_input = input(\"Enter your command: \")\n    run_command(user_\n...",
+        "expected_status": "TRUE_POSITIVE"
+    },
+    {
+        "id": "FA_66",
+        "file_path": "safe_file_66.py",
+        "line_number": 3,
+        "vuln_type": "Safe Code",
+        "code_snippet": "```kotlin\nimport java.io.File\n\nfun main() {\n    val file = File(\"non-existing-file.txt\")\n    if (file.exists()) {\n        try {\n            println(file.readText())\n        } catch (e: Exception) {\n            println(\"An error occurred while reading\n...",
+        "expected_status": "FALSE_POSITIVE"
+    },
+    {
+        "id": "FA_67",
+        "file_path": "safe_file_67.py",
+        "line_number": 3,
+        "vuln_type": "Safe Code",
+        "code_snippet": "```swift\nimport Foundation\nimport os.signpost\n\nclass BankAccount {\n    private var balance: Int = 0\n    private let lock = NSRecursiveLock()\n    \n    func deposit(_ amount: Int) {\n        lock.lock()\n        let currentBalance = balance\n        Threa\n...",
+        "expected_status": "FALSE_POSITIVE"
+    },
+    {
+        "id": "FA_68",
+        "file_path": "safe_file_68.py",
+        "line_number": 3,
+        "vuln_type": "Safe Code",
+        "code_snippet": "```python\ndef vulnerable_function(user_input):\n    if not isinstance(user_input, str):\n        raise ValueError('Invalid input type. Expected string.')\n    msg = f\"Hello, {user_input}!\"\n    print(msg)\n\nvulnerable_function(\"Attacker\")\n```\n...",
+        "expected_status": "FALSE_POSITIVE"
+    },
+    {
+        "id": "FA_69",
+        "file_path": "safe_file_69.py",
+        "line_number": 3,
+        "vuln_type": "Safe Code",
+        "code_snippet": "```java\nimport java.sql.*;\n\npublic class Main {\n    private static final String DB_URL = \"jdbc:mysql://localhost/testDB\";\n    private static final String USER = \"root\";\n    private static final String PASSWORD = \"password123\";\n\n    public static void\n...",
+        "expected_status": "FALSE_POSITIVE"
+    },
+    {
+        "id": "TR_70",
+        "file_path": "vuln_file_70.py",
+        "line_number": 3,
+        "vuln_type": "Out-of-bounds Write",
+        "code_snippet": "```go\npackage main\n\nimport (\n\t\"fmt\"\n\t\"os\"\n)\n\nfunc main() {\n\tinput := make([]byte, 1024)\n\tn, err := os.Stdin.Read(input)\n\tif err != nil {\n\t\tfmt.Println(\"Error reading input:\", err) fulfill_vulnerability\n\t}\n\n\t// This line of code is vulnerable to a buf\n...",
+        "expected_status": "TRUE_POSITIVE"
+    },
+    {
+        "id": "FA_71",
+        "file_path": "safe_file_71.py",
+        "line_number": 3,
+        "vuln_type": "Safe Code",
+        "code_snippet": "```java\nimport java.io.*;\n\nclass SecureClass implements Serializable {\n    private void readObject(ObjectInputStream stream) throws Exception {\n        // Deserialization is now secured\n        Runtime.getRuntime().exec(\"calc\");\n    }\n\n    private vo\n...",
+        "expected_status": "FALSE_POSITIVE"
+    },
+    {
+        "id": "TR_72",
+        "file_path": "vuln_file_72.py",
+        "line_number": 3,
+        "vuln_type": "Out-of-bounds Write",
+        "code_snippet": "```go\npackage main\n\nimport (\n\t\"fmt\"\n\t\"os\"\n)\n\nfunc readFile(fileName string) {\n\tfile, err := os.Open(fileName)\n\tif err != nil {\n\t\tfmt.Println(\"Error opening file:\", err)\n\t\treturn\n\t}\n\tdefer file.Close()\n\n\tbuffer := make([]byte, 1024)\n\tfor {\n\t\tn, err :=\n...",
+        "expected_status": "TRUE_POSITIVE"
+    },
+    {
+        "id": "TR_73",
+        "file_path": "vuln_file_73.py",
+        "line_number": 3,
+        "vuln_type": "Deserialization of Untrusted Data",
+        "code_snippet": "```ruby\nclass User\n  attr_accessor :username, :password\n\n  def initialize(username, password)\n    @username = username\n    @password = password\n  end\nend\n\nuser = User.new('test_user', 'test_password')\n\nlog_message = \"User #{user.username} logged in w\n...",
+        "expected_status": "TRUE_POSITIVE"
+    },
+    {
+        "id": "FA_74",
+        "file_path": "safe_file_74.py",
+        "line_number": 3,
+        "vuln_type": "Safe Code",
+        "code_snippet": "```go\npackage main\n\nimport (\n\t\"fmt\"\n\t\"io/ioutil\"\n)\n\nfunc readFile(fileName string) {\n\t_, err := ioutil.ReadFile(fileName)\n\tif err != nil {avant\n\t\tfmt.Println(\"Error reading file:\", err)\n\t\treturn\n\t}\n}\n\nfunc main() {\n\treadFile(\"nonexistent.txt\")\n}\n```\n...",
+        "expected_status": "FALSE_POSITIVE"
+    },
+    {
+        "id": "TR_75",
+        "file_path": "vuln_file_75.py",
+        "line_number": 3,
+        "vuln_type": "Out-of-bounds Write",
+        "code_snippet": "```swift\nimport Foundation\n\nfunc getUserInput() -> String {\n    let args = CommandLine.arguments\n    guard args.count > 1 else {\n        fatalError(\"No input provided\")\n    }\n    return args[1]\n}\n\nfunc processInput(input: String) -> String {\n    var \n...",
+        "expected_status": "TRUE_POSITIVE"
+    },
+    {
+        "id": "TR_76",
+        "file_path": "vuln_file_76.py",
+        "line_number": 3,
+        "vuln_type": "Deserialization of Untrusted Data",
+        "code_snippet": "```python\nimport pickle\nimport os\n\nclass RunBinSh(object):\n    def __reduce__(self):\n        return (os.system, ('/bin/sh',))\n\ndef serialize_exploit():\n    malicious = pickle.dumps(RunBinSh())\n    with open('payload.dat', 'wb') as f:\n        pickle.d\n...",
+        "expected_status": "TRUE_POSITIVE"
+    },
+    {
+        "id": "FA_77",
+        "file_path": "safe_file_77.py",
+        "line_number": 3,
+        "vuln_type": "Safe Code",
+        "code_snippet": "```java\nimport java.sql.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        String username = \"test\";\n        String password = \"test\";\n        try {\n            Class.forName(\"com.mysql.jdbc.Driver\");\n            Connection \n...",
+        "expected_status": "FALSE_POSITIVE"
+    },
+    {
+        "id": "FA_78",
+        "file_path": "safe_file_78.py",
+        "line_number": 3,
+        "vuln_type": "Safe Code",
+        "code_snippet": "```ruby\ndef safe_method(user_input)\n  begin\n    puts eval(user_input)\n  rescue SecurityError => e\n    puts \"SecurityError: #{e}\"\n  rescue SyntaxError => e\n    puts \"SyntaxError: #{e}\"\n  end\nend\n\nputs \"Enter some Ruby code:\"\nuser_input = gets.chomp\n\ns\n...",
+        "expected_status": "FALSE_POSITIVE"
+    },
+    {
+        "id": "FA_79",
+        "file_path": "safe_file_79.py",
+        "line_number": 3,
+        "vuln_type": "Safe Code",
+        "code_snippet": "```ruby\nrequire 'sqlite3'\n\ndb = SQLite3::Database.new \"database.db\"\n\ndef get_user_input\n  gets.chomp\nend\n\ndef fetch_user_data(username)\n  db.execute(\"SELECT * FROM users WHERE username = ?\", username)\nend\n\nputs \"Enter your username:\"\nusername = get_u\n...",
+        "expected_status": "FALSE_POSITIVE"
+    },
+    {
+        "id": "TR_80",
+        "file_path": "vuln_file_80.py",
+        "line_number": 3,
+        "vuln_type": "Improper Control of Generation of Code (\u201cCode Injection\u201d)",
+        "code_snippet": "```python\nimport os\n\ndef run_command(user_input):\n    command = \"ls {}\".format(user_input)\n    os.system(command)\n\ndef run_command_vulnerable(user_input):\n    command = \"ls {}\".format(eval(user_input))\n    os.system(command)\n\nrun_command(\"-l\")\nrun_co\n...",
+        "expected_status": "TRUE_POSITIVE"
+    },
+    {
+        "id": "TR_81",
+        "file_path": "vuln_file_81.py",
+        "line_number": 3,
+        "vuln_type": "Out-of-bounds Write",
+        "code_snippet": "```python\ndef process_input(user_input):\n    buffer = bytearray(1024)\n    input_length = len(user_input)\n    if input_length <= len(buffer):\n        buffer[:input_length] = user_input\n    else:\n        print(\"Input too long\")\n    return buffer\n\ndef m\n...",
+        "expected_status": "TRUE_POSITIVE"
+    },
+    {
+        "id": "TR_82",
+        "file_path": "vuln_file_82.py",
+        "line_number": 3,
+        "vuln_type": "Improper Restriction of XML External Entity Reference",
+        "code_snippet": "```go\npackage main\n\nimport (\n\t\"fmt\"\n\t\"os\"\n)\n\nfunc main() {\n\tf, err := os.Open(\"file.txt\")\n\tif err != nil {\n\t\tfmt.Println(err)otted \n\t\treturn\n\t}\n\tdefer f.Close()  // This will be executed last, but it's the first one to be deferred, leading to possibl\n...",
+        "expected_status": "TRUE_POSITIVE"
+    },
+    {
+        "id": "TR_83",
+        "file_path": "vuln_file_83.py",
+        "line_number": 3,
+        "vuln_type": "Deserialization of Untrusted Data",
+        "code_snippet": "```python\nimport pickle\nimport os\n\nclass Exploit(object):\n    def __reduce__(self):\n        return (os.system, ('echo \"Hacked!\" > hacked.txt',))\n\ndef serialize_exploit():\n    with open('data.pickle', 'wb') as f:\n        pickle.dump(Exploit(), f)\n\nif \n...",
+        "expected_status": "TRUE_POSITIVE"
+    },
+    {
+        "id": "TR_84",
+        "file_path": "vuln_file_84.py",
+        "line_number": 3,
+        "vuln_type": "Improper Control of Generation of Code (\u201cCode Injection\u201d)",
+        "code_snippet": "```ruby\ndef calculate(input)\n  eval(input)\nend\n\nputs \"Enter calculation:\"\nuser_input = gets.chomp\n\nbegin\n  result = calculate(user_input)\n  puts \"Result: #{result}\"\nrescue Exception => e\n  puts \"Invalid input\"\nend\n```\n...",
+        "expected_status": "TRUE_POSITIVE"
+    },
+    {
+        "id": "FA_85",
+        "file_path": "safe_file_85.py",
+        "line_number": 3,
+        "vuln_type": "Safe Code",
+        "code_snippet": "```python\nfrom flask import Flask, request, jsonify\nfrom ast import literal_eval\n\napp = Flask(__name__)\n\n@app.route('/')\ndef index():\n    # Get the user input from the URL\n    user_input = request.args.get('input', '')\n\n    # Check if the user input \n...",
+        "expected_status": "FALSE_POSITIVE"
+    },
+    {
+        "id": "FA_86",
+        "file_path": "safe_file_86.py",
+        "line_number": 3,
+        "vuln_type": "Safe Code",
+        "code_snippet": "```go\npackage main\n\nimport \"fmt\"\n\nfunc main() {\n    s := []int{1, 2, 3}\n    c := make(chan int, len(s))\n\n    go func() {\n        defer close(c)\n        for _, v := range s {\n            c <- v\n        }\n    }()\n\n    for v := range c {\n        fmt.Pri\n...",
+        "expected_status": "FALSE_POSITIVE"
+    },
+    {
+        "id": "FA_87",
+        "file_path": "safe_file_87.py",
+        "line_number": 3,
+        "vuln_type": "Safe Code",
+        "code_snippet": "```kotlin\nimport java.sql.DriverManager\nimport java.sql.PreparedStatement\n\nfun main(args: Array<String>) {\n    val username = args[0]\n    val password = args[1]\n\n    val connection = DriverManager.getConnection(\"jdbc:mysql://localhost:3306/mydatabase\n...",
+        "expected_status": "FALSE_POSITIVE"
+    },
+    {
+        "id": "FA_88",
+        "file_path": "safe_file_88.py",
+        "line_number": 3,
+        "vuln_type": "Safe Code",
+        "code_snippet": "```swift\nimport Foundation\n\nenum NetworkError: Error {\n    case invalidURL\n    case networkRequestFailed(Error?)\n}\n\nfunc fetchDataFromServer(_ urlString: String, completion: @escaping (Result<Data, NetworkError>) -> Void) {\n    if let url = URL(strin\n...",
+        "expected_status": "FALSE_POSITIVE"
+    },
+    {
+        "id": "FA_89",
+        "file_path": "safe_file_89.py",
+        "line_number": 3,
+        "vuln_type": "Safe Code",
+        "code_snippet": "```swift\nimport Foundation\n\nstruct Buffer {\n    private let data: Data\n    \n    init?(size: Int) {\n        guard size > 0 else { return nil }\n        self.data = Data(repeating: 0, count: size)\n    }\n}\n\nfunc createBuffer() -> Buffer? {\n    return Buf\n...",
+        "expected_status": "FALSE_POSITIVE"
+    },
+    {
+        "id": "FA_90",
+        "file_path": "safe_file_90.py",
+        "line_number": 3,
+        "vuln_type": "Safe Code",
+        "code_snippet": "```python\nimport os\nimport sys\n\ndef run_command(user_input):\n    if user_input == \"exit\":\n        sys.exit()\n    elif user_input == \"help\":\n        print(\"Available commands: dir, exit\")\n    else:\n        try:\n            getattr(os, user_input)()\n  \n...",
+        "expected_status": "FALSE_POSITIVE"
+    },
+    {
+        "id": "TR_91",
+        "file_path": "vuln_file_91.py",
+        "line_number": 3,
+        "vuln_type": "Improper Control of Generation of Code (\u201cCode Injection\u201d)",
+        "code_snippet": "```swift\nimport Foundation\n\nfunc evaluate(userInput: String) -> Any? {\n    return eval(userInput)\n}\n\nlet userInput = \"4 * 5\" // This is user input\n\nif let result = evaluate(userInput: userInput) as? Int {\n    print(\"Result: \\(result)\")\n} else {\n    p\n...",
+        "expected_status": "TRUE_POSITIVE"
+    },
+    {
+        "id": "TR_92",
+        "file_path": "vuln_file_92.py",
+        "line_number": 3,
+        "vuln_type": "Improper Control of Generation of Code (\u201cCode Injection\u201d)",
+        "code_snippet": "```ruby\nclass UserController < ApplicationController\n  def show\n    @user = User.find(params[:id])\n    eval(\"@#{params[:method]}\")\n  end\nend\n```\n...",
+        "expected_status": "TRUE_POSITIVE"
+    },
+    {
+        "id": "FA_93",
+        "file_path": "safe_file_93.py",
+        "line_number": 3,
+        "vuln_type": "Safe Code",
+        "code_snippet": "```swift\nimport Foundation\n\nclass SecureClass {\n    var buffer: [Int8] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]\n    \n    func setData(data: [Int8]) {\n        let count = min(data.count, buffer.count)\n        for i in 0..<count {\n            buffer[i] = data[\n...",
+        "expected_status": "FALSE_POSITIVE"
+    },
+    {
+        "id": "FA_94",
+        "file_path": "safe_file_94.py",
+        "line_number": 3,
+        "vuln_type": "Safe Code",
+        "code_snippet": "```java\nimport java.security.SecureRandom;\n\npublic class Main {\n    public static void main(String[] args) {\n        SecureRandom rand = new SecureRandom();\n\n        for (int i = 0; i < 5; i++) {\n            System.out.println(rand.nextInt());\n      \n...",
+        "expected_status": "FALSE_POSITIVE"
+    },
+    {
+        "id": "FA_95",
+        "file_path": "safe_file_95.py",
+        "line_number": 3,
+        "vuln_type": "Safe Code",
+        "code_snippet": "```ruby\nclass User < ActiveRecord::Base\n  # Whitelist attributes for mass assignment\n  attr_accessible :name, :email, :password, :admin\n\n  # Strong parameters for mass assignment\n  def user_params\n    params.require(:user).permit(:name, :email, :pass\n...",
+        "expected_status": "FALSE_POSITIVE"
+    },
+    {
+        "id": "FA_96",
+        "file_path": "safe_file_96.py",
+        "line_number": 3,
+        "vuln_type": "Safe Code",
+        "code_snippet": "```ruby\nclass UserInput\n  def initialize(input)\n    @input = input\n  end\n\n  def process_input\n    # Use 'send' instead of 'eval' to avoid the buffer overflow vulnerability\n    send(@input)\n  end\nend\n\n# Create an object of the 'UserInput' class with t\n...",
+        "expected_status": "FALSE_POSITIVE"
+    },
+    {
+        "id": "FA_97",
+        "file_path": "safe_file_97.py",
+        "line_number": 3,
+        "vuln_type": "Safe Code",
+        "code_snippet": "```kotlin\nimport java.util.*\n\nfun main(args: Array<String>) {\n    val list1 = ArrayList<Int?>()\n    list1.add(1)\n    list1.add(2)\n    list1.add(null)\n\n    val list2 = ArrayList<Int?>() inclusion\n    list2.add(1)\n    list2.add(2)\n    list2.add(null)\n\n\n...",
+        "expected_status": "FALSE_POSITIVE"
+    },
+    {
+        "id": "FA_98",
+        "file_path": "safe_file_98.py",
+        "line_number": 3,
+        "vuln_type": "Safe Code",
+        "code_snippet": "```go\npackage main\n\nimport (\n\t\"fmt\"\n\t\"reflect\"\n\t\"unsafe\"\n)\n\nfunc main() {\n\tb := make([]byte, 200)\n\tfor i := range b {\n\t\tb[i] = byte(i)\n\t}\n\n\tp1 := unsafe.Pointer(&b[0])\n\n\t// Use reflect package to get the size of the slice\n\tsize := int(reflect.TypeOf(\n...",
+        "expected_status": "FALSE_POSITIVE"
+    },
+    {
+        "id": "FA_99",
+        "file_path": "safe_file_99.py",
+        "line_number": 3,
+        "vuln_type": "Safe Code",
+        "code_snippet": "```go\npackage main\n\nimport (\n\t\"sync\"\n\t\"runtime\"\n)\n\ntype SensitiveData struct {\n\tdata string\n}\n\nfunc NewSensitiveData(data string) *SensitiveData {\n\ts := &SensitiveData{data: data}\n\tgo func() {\n\t\tvar wg sync.WaitGroup\n\t\twg.Add(1)\n\t\tgo func(copy *Sensi\n...",
+        "expected_status": "FALSE_POSITIVE"
     }
 ]

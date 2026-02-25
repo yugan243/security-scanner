@@ -55,7 +55,7 @@ SECURITY_EXPERT_SYSTEM_PROMPT = """You are a Senior Application Security Enginee
 # BATCH VERIFICATION: Send multiple findings per LLM call to save tokens & time
 # System prompt (~850 tokens) is sent ONCE per batch instead of once per finding
 # ================================================================================
-VERIFICATION_BATCH_SIZE = 5
+VERIFICATION_BATCH_SIZE = 10
 
 # ================================================================================
 # CONFIDENCE THRESHOLD: Override uncertain FALSE_POSITIVE verdicts
