@@ -103,9 +103,19 @@ def scan(
     """
     Scans a local repository or remote Git URL for security vulnerabilities.
     """
-    # AUTO-DETECT: If not configured, run the setup wizard first
+    # AUTO-DETECT: If not configured, handle appropriately
     if not is_configured():
-        console.print("[yellow]No LLM configuration detected.[/yellow]\n")
+        # Docker mode — can't run interactive wizard
+        if os.environ.get("VIGIL_DOCKER"):
+            console.print("[red]❌ No LLM configuration detected.[/red]\n")
+            console.print("When running in Docker, pass your config as environment variables:\n")
+            console.print("  [bold]docker run -e LLM_PROVIDER=groq -e GROQ_API_KEY=your_key \\[/bold]")
+            console.print("  [bold]  vigil scan <repo-url>[/bold]\n")
+            console.print("Supported providers: [cyan]groq[/cyan], [cyan]google[/cyan], [cyan]openai[/cyan], [cyan]ollama[/cyan]")
+            raise typer.Exit(1)
+        
+        # Normal CLI — run interactive wizard
+        console.print("[yellow]⚠️  No LLM configuration detected.[/yellow]\n")
         wizard_ok = run_setup_wizard()
         if not wizard_ok:
             console.print("[red]Setup cancelled. Cannot scan without an LLM provider.[/red]")

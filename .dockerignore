@@ -1,0 +1,36 @@
+# === Dev files ===
+.env
+.env.*
+.git/
+.gitignore
+.agents/
+.gemini/
+
+# === Test & benchmark data ===
+tests/
+*.test.*
+
+# === Python caches ===
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+build/
+
+# === IDE & OS files ===
+.vscode/
+.idea/
+*.swp
+*.swo
+Thumbs.db
+.DS_Store
+
+# === Docker (don't copy Docker files into the image) ===
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# === Docs ===
+README.md
+LICENSE

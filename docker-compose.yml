@@ -1,0 +1,30 @@
+# ============================================================
+# Vigil — Local Development Setup with Ollama
+# 
+# Usage:
+#   1. docker compose up -d
+#   2. docker compose exec ollama ollama pull llama3
+#   3. docker compose run vigil scan https://github.com/some/repo
+# ============================================================
+
+services:
+  # The Vigil scanner
+  vigil:
+    build: .
+    environment:
+      - LLM_PROVIDER=ollama
+      - OLLAMA_BASE_URL=http://ollama:11434
+      - OLLAMA_MODEL=llama3
+    depends_on:
+      - ollama
+
+  # Local LLM server (no API key needed)
+  ollama:
+    image: ollama/ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+
+volumes:
+  ollama_data:
