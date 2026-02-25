@@ -7,12 +7,17 @@ from rich.panel import Panel
 from rich.markdown import Markdown
 
 from src.agents.workflow import create_workflow
-from src.config import settings
+from src.config import settings, reload_settings
 from src.tools.git import clone_repo  
 from src.core.models import FindingStatus
+from src.setup_wizard import run_setup_wizard, is_configured
 
 # Setup App
-app = typer.Typer(help="AI-Powered Security Scanner")
+app = typer.Typer(
+    name="vigil",
+    help="🛡️ Vigil — AI-Powered Security Scanner",
+    add_completion=False,
+)
 console = Console()
 
 # Setup Logging
@@ -35,7 +40,7 @@ def run_workflow(repo_target: str, workflow):
     console.print("\n")
     console.print(Panel(
         Markdown(f"**CISO Executive Summary:**\n\n{report_obj.executive_summary}"),
-        title="AI Security Assessment",
+        title="🛡️ Vigil Security Assessment",
         style="blue"
     ))
 
@@ -81,6 +86,16 @@ def run_workflow(repo_target: str, workflow):
 
 
 @app.command()
+def init():
+    """
+    Configure Vigil's LLM provider and credentials.
+    Run this to set up for the first time, or to change your LLM provider.
+    """
+    run_setup_wizard()
+    reload_settings()
+
+
+@app.command()
 def scan(
     path: str = typer.Argument(..., help="Path or URL to the repository to scan"),
     verbose: bool = typer.Option(False, "--verbose", "-v", help="Show detailed logs")
@@ -88,6 +103,15 @@ def scan(
     """
     Scans a local repository or remote Git URL for security vulnerabilities.
     """
+    # AUTO-DETECT: If not configured, run the setup wizard first
+    if not is_configured():
+        console.print("[yellow]No LLM configuration detected.[/yellow]\n")
+        wizard_ok = run_setup_wizard()
+        if not wizard_ok:
+            console.print("[red]Setup cancelled. Cannot scan without an LLM provider.[/red]")
+            raise typer.Exit(1)
+        reload_settings()
+
     workflow = create_workflow()
 
     # ROUTING LOGIC: Remote URL vs Local Path
