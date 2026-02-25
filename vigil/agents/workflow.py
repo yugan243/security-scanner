@@ -1,8 +1,8 @@
 from langgraph.graph import StateGraph, START, END
-from src.core.state import AgentState
-from src.agents.scanner import scan_repo_node
-from src.agents.verifier import verify_findings_node
-from src.agents.reporter import report_generation_node
+from vigil.core.state import AgentState
+from vigil.agents.scanner import scan_repo_node
+from vigil.agents.verifier import verify_findings_node
+from vigil.agents.reporter import report_generation_node
 
 def create_workflow():
     """

@@ -3,9 +3,9 @@ import logging
 from rich.console import Console
 from rich.table import Table
 
-from src.agents.verifier import verify_findings_node
-from src.core.models import Vulnerability, FindingStatus, Severity
-from src.config import settings
+from vigil.agents.verifier import verify_findings_node
+from vigil.core.models import Vulnerability, FindingStatus, Severity
+from vigil.config import settings
 
 console = Console()
 logger = logging.getLogger(settings.APP_NAME)

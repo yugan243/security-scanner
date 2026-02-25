@@ -44,8 +44,8 @@ RUN pip install --no-cache-dir semgrep
 COPY --from=builder /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
 COPY --from=builder /usr/local/bin /usr/local/bin
 
-# Copy source code (only src/, not tests or dev files)
-COPY src/ ./src/
+# Copy source code (only vigil/, not tests or dev files)
+COPY vigil/ ./vigil/
 
 # Signal that we're running inside Docker
 # This tells the CLI to show a help message instead of
@@ -54,4 +54,4 @@ ENV VIGIL_DOCKER=1
 
 # Entry point — all arguments are passed to the Vigil CLI
 # Usage: docker run vigil scan https://github.com/some/repo
-ENTRYPOINT ["python", "-m", "src.main"]
+ENTRYPOINT ["python", "-m", "vigil.main"]

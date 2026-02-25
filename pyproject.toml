@@ -1,5 +1,5 @@
 [project]
-name = "security-scanner"
+name = "vigil-scanner"
 version = "0.1.0"
 description = "AI-powered multi-agent security scanner for detecting security vulnerabilities within a given github codebase"
 authors = [
@@ -18,12 +18,17 @@ dependencies = [
     "rich (>=14.3.2,<15.0.0)",
     "python-dotenv (>=1.2.1,<2.0.0)",
     "langchain-groq (>=1.1.2,<2.0.0)",
-    "datasets (>=4.5.0,<5.0.0)"
 ]
 
+[project.urls]
+Homepage = "https://github.com/yugan243/security-scanner"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
+
 [tool.poetry]
-package-mode = false
+packages = [{include = "vigil"}]
+
+[tool.poetry.scripts]
+vigil = "vigil.main:app"

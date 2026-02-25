@@ -1,6 +1,6 @@
 import logging
 from pathlib import Path
-from src.config import settings
+from vigil.config import settings
 
 logger = logging.getLogger(settings.APP_NAME)
 

@@ -1,7 +1,7 @@
 import operator
 from typing import List, Annotated, Dict, Any
 from typing_extensions import TypedDict
-from src.core.models import Vulnerability
+from vigil.core.models import Vulnerability
 
 class AgentState(TypedDict):
     """

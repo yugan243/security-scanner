@@ -6,11 +6,11 @@ from rich.table import Table
 from rich.panel import Panel
 from rich.markdown import Markdown
 
-from src.agents.workflow import create_workflow
-from src.config import settings, reload_settings
-from src.tools.git import clone_repo  
-from src.core.models import FindingStatus
-from src.setup_wizard import run_setup_wizard, is_configured
+from vigil.agents.workflow import create_workflow
+from vigil.config import settings, reload_settings
+from vigil.tools.git import clone_repo  
+from vigil.core.models import FindingStatus
+from vigil.setup_wizard import run_setup_wizard, is_configured
 
 # Setup App
 app = typer.Typer(

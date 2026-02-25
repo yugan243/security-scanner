@@ -1,8 +1,8 @@
 import logging
 import os
-from src.core.state import AgentState
-from src.tools.semgrep import SemgrepScanner
-from src.config import settings
+from vigil.core.state import AgentState
+from vigil.tools.semgrep import SemgrepScanner
+from vigil.config import settings
 
 logger = logging.getLogger(settings.APP_NAME)
 

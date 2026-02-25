@@ -1,9 +1,9 @@
 import logging
 from datetime import datetime
-from src.core.state import AgentState
-from src.core.models import FindingStatus, Severity, ScanReport
-from src.core.llm import get_llm
-from src.config import settings
+from vigil.core.state import AgentState
+from vigil.core.models import FindingStatus, Severity, ScanReport
+from vigil.core.llm import get_llm
+from vigil.config import settings
 from collections import Counter
 
 logger = logging.getLogger(settings.APP_NAME)

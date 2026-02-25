@@ -1,10 +1,10 @@
 import logging
 from typing import List
 from pydantic import BaseModel, Field
-from src.core.state import AgentState
-from src.core.llm import get_llm
-from src.core.models import FindingStatus, Severity
-from src.config import settings
+from vigil.core.state import AgentState
+from vigil.core.llm import get_llm
+from vigil.core.models import FindingStatus, Severity
+from vigil.config import settings
 from langchain_core.messages import SystemMessage, HumanMessage
 
 logger = logging.getLogger(settings.APP_NAME)

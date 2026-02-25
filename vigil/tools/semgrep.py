@@ -4,8 +4,8 @@ import json
 import logging
 from typing import List
 from pathlib import Path
-from src.core.models import Vulnerability, Severity, FindingStatus
-from src.config import settings
+from vigil.core.models import Vulnerability, Severity, FindingStatus
+from vigil.config import settings
 
 # Setup logger
 logger = logging.getLogger(settings.APP_NAME)

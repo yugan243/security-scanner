@@ -2,7 +2,7 @@ import subprocess
 import logging
 import tempfile
 from contextlib import contextmanager
-from src.config import settings
+from vigil.config import settings
 
 logger = logging.getLogger(settings.APP_NAME)
 
