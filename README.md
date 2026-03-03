@@ -36,6 +36,18 @@ Vigil is a multi-agent AI security scanner that combines **static analysis** (Se
 pip install vigil-scanner
 ```
 
+> **Requires Python 3.11 – 3.13.** If your default Python is 3.14+, use one of these:
+> ```bash
+> # Windows
+> py -3.12 -m pip install vigil-scanner
+>
+> # Or use pipx (recommended for CLI tools)
+> pipx install vigil-scanner --python 3.12
+>
+> # Or use Docker (no Python needed)
+> docker run -e LLM_PROVIDER=groq -e GROQ_API_KEY=your_key vigil scan <repo-url>
+> ```
+
 ### Scan a Repository
 
 ```bash

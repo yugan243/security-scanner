@@ -1,13 +1,13 @@
 [project]
 name = "vigil-scanner"
-version = "0.1.0"
+version = "0.1.1"
 description = "AI-powered multi-agent security scanner for detecting security vulnerabilities within a given github codebase"
 authors = [
     {name = "yugan243",email = "yugannimsara@gmail.com"}
 ]
 license = {text = "MIT"}
 readme = "README.md"
-requires-python = ">=3.11,<3.13"
+requires-python = ">=3.11,<3.14"
 dependencies = [
     "typer[all] (>=0.24.0,<0.25.0)",
     "langgraph (>=1.0.8,<2.0.0)",
