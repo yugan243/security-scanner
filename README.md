@@ -172,5 +172,5 @@ MIT License — see [LICENSE](LICENSE) for details.
 ---
 
 <p align="center">
-  Built by Yugan Nimsara ❤️ with a little help of Antigravity using <a href="https://github.com/langchain-ai/langgraph">LangGraph</a> · <a href="https://semgrep.dev">Semgrep</a> · <a href="https://groq.com">Groq</a>
+  Built by Yugan Nimsara ❤️ with the help of Antigravity 
 </p>
